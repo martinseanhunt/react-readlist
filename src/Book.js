@@ -18,7 +18,11 @@ export default function Book(props) {
           </div>
         </div>
         <div className="book-title">{props.book.title}</div>
-        <div className="book-authors">{props.book.authors.join(', ')}</div>
+
+        {/* I found one search result that doesn't have an author so check it's not empty first*/}
+        <div className="book-authors">
+          {props.book.authors && props.book.authors.join(', ')}
+        </div>
       </div>
     </li>
     )

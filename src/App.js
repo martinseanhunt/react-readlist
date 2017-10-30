@@ -1,8 +1,8 @@
 import React from 'react'
-import { Route, Link } from 'react-router-dom'
+import { Route } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
-import BookShelf from './BookShelf'
-import Book from './Book'
+import ListBooks from './ListBooks'
+import Search from './Search'
 import './App.css'
 
 class BooksApp extends React.Component {
@@ -19,17 +19,21 @@ class BooksApp extends React.Component {
     .filter(book => book.shelf === shelf)
 
   // QUESTION: This feels messy... is there a better way?
-  onSearch(string) {
+  onSearch = string => {
     BooksAPI.search(string).then(searchResults => {
-
+      
+      if (searchResults.error) return null;
+      
       const resultsWithShelf = searchResults.map(result => {
         const stateBook = this.state.books.filter(book => book.id === result.id)
-        if (stateBook.length) return stateBook[0]
+        if (stateBook.length) 
+          return stateBook[0]
         result.shelf = null
         return result
       })
 
       this.setState({ searchResults: resultsWithShelf })
+      
     })
   }
 
@@ -72,43 +76,21 @@ class BooksApp extends React.Component {
       <div className="app">
           
         <Route exact path="/" render={() => (
-          <div className="list-books">
-            <div className="list-books-title">
-              <h1>MyReads</h1>
-            </div>
-            <div className="list-books-content">
-              <div>
-                <BookShelf name="Currently Reading" books={currentlyReading} onSelectShelf={this.onSelectShelf} />
-                <BookShelf name="Want to Read" books={wantToRead} onSelectShelf={this.onSelectShelf} />
-                <BookShelf name="Read" books={read} onSelectShelf={this.onSelectShelf} />
-              </div>
-            </div>
-            <div className="open-search">
-              <Link to="/search">Add a book</Link>
-            </div>
-          </div>
+          <ListBooks 
+            currentlyReading={currentlyReading}
+            wantToRead={wantToRead}
+            read={read}
+            onSelectShelf={this.onSelectShelf}
+          />
         )} />
 
         <Route exact path="/search" render={() => (
-          <div className="search-books">
-            <div className="search-books-bar">
-              <Link className="close-search" to="/">Close</Link>
-              <div className="search-books-input-wrapper">
-                <input type="text" onChange={e => this.onSearch(e.target.value)} placeholder="Search by title or author"/>
-
-              </div>
-            </div>
-            <div className="search-books-results">
-              <ol className="books-grid">
-                {this.state.searchResults.map(book => 
-                  <Book book={book} key={book.id} onSelectShelf={this.onSelectShelf}  />
-                )} 
-              </ol>
-            </div>
-          </div>
+          <Search 
+            onSearch={this.onSearch}
+            searchResults={this.state.searchResults}
+            onSelectShelf={this.onSelectShelf}
+          />
         )} />
-
-        
 
       </div>
     )
