@@ -48,13 +48,10 @@ class BooksApp extends React.Component {
         // If the book is already in the array, get it
         const bookInState = this.state.books.filter(b => b.id === book.id)
         
-        let books
-        // if it isn't in state, it's a new book so needs to be added
-        if (!bookInState.length) {
-          books = [...this.state.books, book]
-        } else {
-          books = this.state.books
-        }
+         // if it isn't in state, it's a new book so needs to be added
+        const books = bookInState.length 
+          ? this.state.books
+          : [...this.state.books, book]
 
         // then go through the books to change the shelf property on the 
         // right object and set the new state
