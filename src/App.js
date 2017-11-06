@@ -20,19 +20,18 @@ class BooksApp extends React.Component {
 
   // QUESTION: This feels messy... is there a better way?
   onSearch = string => {
+    if (!string) return null
+      
     BooksAPI.search(string).then(searchResults => {
       
       if (searchResults.error) return null;
-      
-      const resultsWithShelf = searchResults.map(result => {
-        const stateBook = this.state.books.filter(book => book.id === result.id)
-        if (stateBook.length) 
-          return stateBook[0]
-        result.shelf = null
-        return result
-      })
 
-      this.setState({ searchResults: resultsWithShelf })
+      const hashTable = {}
+      this.state.books.forEach( book => hashTable[book.id] = book.shelf )
+      
+      searchResults.forEach( result => result.shelf = hashTable[result.id]  || 'none')
+
+      this.setState({ searchResults: searchResults })
       
     })
   }
