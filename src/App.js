@@ -18,10 +18,9 @@ class BooksApp extends React.Component {
   getShelf = shelf => this.state.books
     .filter(book => book.shelf === shelf)
 
-  // QUESTION: This feels messy... is there a better way?
   onSearch = string => {
     if (!string) return null
-      
+
     BooksAPI.search(string).then(searchResults => {
       
       if (searchResults.error) return null;
@@ -36,32 +35,20 @@ class BooksApp extends React.Component {
     })
   }
 
-  // QUESTION: The way I'm updating the state here feels a bit
-  // messy. Is there a better way considering what the API returns
-  // and the fact that I'm having to account for adding from searches?
   onSelectShelf = (e, book) => {
     const shelf = e.target.value
-    BooksAPI.update(book, shelf)
-      .then(() => {
-      
-        // If the book is already in the array, get it
-        const bookInState = this.state.books.filter(b => b.id === book.id)
-        
-         // if it isn't in state, it's a new book so needs to be added
-        const books = bookInState.length 
-          ? this.state.books
-          : [...this.state.books, book]
+    BooksAPI.update(book, shelf).then(() => {
 
-        // then go through the books to change the shelf property on the 
-        // right object and set the new state
-        this.setState({
-          books: books.map(b => {
-            if(b.id === book.id) b.shelf = shelf
-            return b
-          })
-        })
+      // The API doesn't return the updated object so we need to do it manually
+      book.shelf = shelf
 
+      // If the book is already in state remove it 
+      // after the book is removed (or not) add the book again with new details
+      this.setState({
+        books: this.state.books.filter(b => b.id !== book.id).concat(book) 
       })
+
+    })
   }
 
   render() {
